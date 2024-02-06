@@ -1,0 +1,13 @@
+npm run start:dev  -> To start the server
+
+nest g service prisma  -> to generate service
+nest g module prisma  -> to generate module
+
+
+npx prisma studio -> To start the db in browser
+npx prisma generate  -> To generate prisma boilerplate
+npx prisma migrate dev -> to mirgrate the db
+
+
+docker compose up dev-db -d -> to start the sql db in docker
+docker compose rm dev-db -s -f -v -> to stop the sql db in docker and remove it
