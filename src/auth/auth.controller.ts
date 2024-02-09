@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 @Controller('auth')
@@ -10,6 +10,7 @@ export class AuthController {
         return this.authService.signup(data);
     }
 
+    @HttpCode(HttpStatus.OK) // it will return 200 rather than (default) 201 status
     @Post('signin')
     signin(@Body() data: AuthDto) {
         return this.authService.signin(data);
