@@ -1,16 +1,27 @@
-import { Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
-import { GetUser } from 'src/auth/decorator';
-import { JwtGuard } from 'src/auth/guard';
+import { GetUser } from '../auth/decorator';
+import { JwtGuard } from '../auth/guard';
+import { EditUserDto } from './dto';
+import { UserService } from './user.service';
 
+@ApiTags('users')
+@ApiBearerAuth()
 @UseGuards(JwtGuard) // we can also use it for particular route
 @Controller('users')
 export class UserController {
-    @Get('me')
-    getMe(@GetUser('') user: User, @GetUser('id') userId: number) {
-        return { user };
-    }
+	constructor(private userService: UserService) {}
 
-    @Patch('')
-    editUser() {}
+	/** Get the logged-in user */
+	@Get('me')
+	getMe(@GetUser() user: User) {
+		return user;
+	}
+
+	/** Change your email, first name or last name */
+	@Patch()
+	editUser(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
+		return this.userService.editUser(userId, dto);
+	}
 }

@@ -2,42 +2,45 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-    email String @unique
-    hash  String
+  email String @unique
+  hash  String
 
-    firstname String?
-    lastname  String?
+  firstname String?
+  lastname  String?
 
-    bookmarks Bookmark[]
+  bookmarks Bookmark[]
 
-    @@map("users")
+  @@map("users")
 }
 
 model Bookmark {
-    id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-    title       String
-    description String?
-    link        String
+  title       String
+  description String?
+  link        String
 
-    userId Int
+  userId Int
 
-    user User @relation(fields: [userId], references: [id])
+  // deleting a user also deletes their bookmarks
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@map("bookmarks")
+  // every bookmark query filters by userId
+  @@index([userId])
+  @@map("bookmarks")
 }

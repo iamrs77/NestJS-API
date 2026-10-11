@@ -6,7 +6,7 @@ import { PrismaService } from './prisma.service';
 
 @Global() // this annotation hellps us to make the module global, that avoid manual imports in other modules
 @Module({
-    providers: [PrismaService],
-    exports: [PrismaService], // this is used so that this service can be used in other modules
+	providers: [PrismaService],
+	exports: [PrismaService], // this is used so that this service can be used in other modules
 })
 export class PrismaModule {}
