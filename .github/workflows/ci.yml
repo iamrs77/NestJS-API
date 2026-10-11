@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Lint, build and test
+    runs-on: ubuntu-latest
+
+    # throwaway database for the e2e tests, same settings as .env.test
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: '123'
+          POSTGRES_DB: nest
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint:check
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:e2e
+
+  docker:
+    name: Docker Compose starts the API
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Start the database and the API
+        run: docker compose up --build --detach --wait
+
+      - name: Check that the API answers
+        run: curl --fail --silent --show-error http://localhost:3000/docs-json > /dev/null
+
+      - name: Show logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop everything
+        if: always()
+        run: docker compose down --volumes
