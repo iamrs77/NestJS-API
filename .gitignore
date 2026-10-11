@@ -33,3 +33,9 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Env files (only the example and the test settings are committed)
+.env
+.env.*
+!.env.example
+!.env.test
