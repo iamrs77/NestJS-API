@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
@@ -26,17 +30,18 @@ export class AuthService {
                 },
             });
 
-            delete user.hash;
-            // return saved user
+            // return token for saved user
             let token = await this.signToken(user.id, user.email);
             return { access_token: token };
         } catch (error) {
             if (error instanceof PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
-                    // prisma defined codes
-                    throw new ForbiddenException('Credentials Taken');
+                    // prisma defined codes, P2002 = unique constraint failed
+                    throw new ConflictException('Credentials Taken');
                 }
             }
+            // anything else (db down etc.) should surface as a 500, not an empty 201
+            throw error;
         }
     }
 
@@ -48,18 +53,18 @@ export class AuthService {
             },
         });
         // user does not exist throw exception
+        // same message as wrong password so callers can't tell which emails are registered
         if (!user) {
-            throw new ForbiddenException('Credentials Incorrect');
+            throw new UnauthorizedException('Credentials Incorrect');
         }
 
         // compare password
         const pwmatch = await argon.verify(user.hash, data.password);
         // if pass no match throw exception
         if (!pwmatch) {
-            throw new ForbiddenException('Incorrect Password');
+            throw new UnauthorizedException('Credentials Incorrect');
         }
 
-        delete user.hash;
         // send data
         let token = await this.signToken(user.id, user.email);
         return { access_token: token };

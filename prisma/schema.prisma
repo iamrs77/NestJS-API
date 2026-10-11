@@ -13,7 +13,7 @@ datasource db {
 model User {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 
     email String @unique
     hash  String
@@ -29,7 +29,7 @@ model User {
 model Bookmark {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
 
     title       String
     description String?

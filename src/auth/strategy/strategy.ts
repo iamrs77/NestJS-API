@@ -22,6 +22,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
                 id: payload.sub,
             },
         });
+        // user was deleted after the token was issued, passport turns null into 401
+        if (!user) {
+            return null;
+        }
+
+        // never expose the password hash on req.user
+        delete user.hash;
         return user;
     }
 }
